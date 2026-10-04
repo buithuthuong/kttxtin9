@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Học Tập Tương Tác - Sử Dụng Dịch Vụ Internet Đúng Luật</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#f59e0b', // Yellow / Amber theme
+                        darkBlue: '#1e3a8a', // Deep Blue
+                        accentPink: '#db2777', // Dark Pink / Magenta
+                        softBg: '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap');
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #fef08a 0%, #dbeafe 50%, #fce7f3 100%);
+            min-height: 100vh;
+        }
+        .draggable-item {
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+        .drop-zone {
+            min-height: 120px;
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="text-slate-900 p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border-4 border-amber-400">
+        
+        <!-- HEADER SECTION -->
+        <header class="bg-darkBlue text-white p-6 sm:p-8 text-center border-b-4 border-accentPink">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold uppercase tracking-wide text-amber-300 mb-2">
+                KIỂM TRA THƯỜNG XUYÊN
+            </h1>
+            <h2 class="text-xl sm:text-2xl font-bold uppercase tracking-wide text-pink-400 mb-4">
+                SỬ DỤNG DỊCH VỤ INTERNET ĐÚNG LUẬT
+            </h2>
+            
+            <div class="flex flex-col items-center justify-center gap-1.5 sm:gap-2 text-base sm:text-lg font-bold text-slate-200 mt-4 bg-slate-900/60 p-4 rounded-2xl max-w-xl mx-auto shadow-inner">
+                <p>Môn: Tin học</p>
+                <p>Lớp: 9</p>
+                <p>Bài 4: Một số vấn đề pháp lí về sử dụng dịch vụ Internet</p>
+                <p>Thời gian làm bài: 12 phút</p>
+                <p>Thang điểm: 10 điểm</p>
+            </div>
+        </header>
+
+        <!-- SETUP SCREEN -->
+        <div id="setup-screen" class="p-6 sm:p-8">
+            <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 mb-8 shadow-sm">
+                <h3 class="text-lg font-extrabold text-amber-900 mb-3 uppercase">HƯỚNG DẪN</h3>
+                <ul class="list-disc list-inside space-y-2 text-slate-800 text-base sm:text-lg font-bold">
+                    <li>Thời gian làm bài: <strong>12 phút</strong>.</li>
+                    <li>Tổng điểm: <strong>10 điểm</strong>.</li>
+                    <li>Đọc kỹ từng câu hỏi.</li>
+                    <li>Hoàn thành tất cả các câu hỏi.</li>
+                    <li>Khi hoàn thành, nhấn nút <strong>“CHẤM ĐIỂM”</strong>.</li>
+                    <li>Khi hết thời gian, hệ thống tự động khóa bài và tự động chấm điểm.</li>
+                </ul>
+            </div>
+
+            <!-- THÔNG TIN HỌC SINH -->
+            <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-6 max-w-xl mx-auto shadow-md">
+                <h3 class="text-xl font-extrabold text-sky-900 mb-4 text-center uppercase">THÔNG TIN HỌC SINH</h3>
+                <form id="student-form" class="space-y-4" onsubmit="event.preventDefault(); startQuiz();">
+                    <div>
+                        <label class="block font-extrabold text-slate-800 mb-1 text-base uppercase">HỌ VÀ TÊN <span class="text-red-500">*</span></label>
+                        <input type="text" id="student-name" required placeholder="Nhập họ và tên đầy đủ của em..." 
+                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-amber-500 focus:outline-none text-base font-bold text-slate-900 bg-white">
+                    </div>
+                    <div>
+                        <label class="block font-extrabold text-slate-800 mb-1 text-base uppercase">LỚP <span class="text-red-500">*</span></label>
+                        <input type="text" id="student-class" required placeholder="Ví dụ: 9A1" 
+                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-amber-500 focus:outline-none text-base font-bold text-slate-900 bg-white">
+                    </div>
+                    <div class="pt-2 text-center">
+                        <button type="submit" class="w-full sm:w-auto px-8 py-4 bg-accentPink hover:bg-pink-700 text-white font-extrabold text-lg rounded-xl shadow-lg transition transform hover:-translate-y-0.5 uppercase tracking-wider">
+                            BẮT ĐẦU LÀM BÀI
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="quiz-screen" class="hidden p-6 sm:p-8">
+            
+            <div class="sticky top-4 z-50 bg-darkBlue text-white p-4 rounded-2xl shadow-xl flex flex-wrap justify-between items-center mb-8 border-2 border-amber-400 gap-4">
+                <div class="text-sm sm:text-base font-extrabold">
+                    Học sinh: <span id="display-name" class="text-amber-300 font-black"></span> | Lớp: <span id="display-class" class="text-amber-300 font-black"></span>
+                </div>
+                <div class="flex items-center space-x-2 bg-slate-900 px-4 py-2 rounded-xl border border-slate-700">
+                    <span class="text-sm uppercase font-extrabold text-slate-300">THỜI GIAN LÀM BÀI:</span>
+                    <span id="timer-display" class="text-xl sm:text-2xl font-black text-amber-400">12:00</span>
+                </div>
+            </div>
+
+            <!-- QUESTIONS CONTAINER -->
+            <div class="space-y-8">
+
+                <!-- CÂU 1 -->
+                <div id="question-1-card" class="bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-md transition-all duration-300">
+                    <h3 class="text-lg sm:text-xl font-black text-darkBlue uppercase mb-2">CÂU 1. DẠNG KÉO – THẢ – 2 ĐIỂM (Mỗi ý đúng 0.5 điểm)</h3>
+                    <p class="text-lg sm:text-xl font-bold text-slate-900 mb-4">Kéo các hành vi vào đúng nhóm.</p>
+                    
+                    <div class="mb-6 p-4 bg-slate-100 rounded-xl border-2 border-dashed border-slate-300">
+                        <p class="text-sm font-extrabold text-slate-700 mb-3 uppercase">Các thẻ hành vi (Kéo các thẻ dưới đây vào ô nhóm phù hợp):</p>
+                        <div id="draggable-pool" class="flex flex-wrap gap-3">
+                            <div draggable="true" id="card-1" class="draggable-item bg-white border-2 border-darkBlue text-slate-900 p-3.5 rounded-xl shadow font-bold text-base sm:text-lg" ondragstart="drag(event)" data-id="1">
+                                Tải hình ảnh trên Internet khi chưa được chủ sở hữu cho phép và sử dụng như của mình.
+                            </div>
+                            <div draggable="true" id="card-2" class="draggable-item bg-white border-2 border-darkBlue text-slate-900 p-3.5 rounded-xl shadow font-bold text-base sm:text-lg" ondragstart="drag(event)" data-id="2">
+                                Sử dụng ngôn ngữ phản cảm khi giao tiếp trên mạng xã hội.
+                            </div>
+                            <div draggable="true" id="card-3" class="draggable-item bg-white border-2 border-darkBlue text-slate-900 p-3.5 rounded-xl shadow font-bold text-base sm:text-lg" ondragstart="drag(event)" data-id="3">
+                                Chúc mừng sinh nhật bạn trên mạng xã hội.
+                            </div>
+                            <div draggable="true" id="card-4" class="draggable-item bg-white border-2 border-darkBlue text-slate-900 p-3.5 rounded-xl shadow font-bold text-base sm:text-lg" ondragstart="drag(event)" data-id="4">
+                                Đăng hình ảnh, video bôi nhọ, xúc phạm tập thể hoặc cá nhân lên mạng.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 drop-zone flex flex-col" ondragover="allowDrop(event)" ondrop="drop(event, 'group-vi-pham')" id="group-vi-pham">
+                            <h4 class="font-black text-red-900 mb-3 text-base sm:text-lg uppercase">Hành vi vi phạm pháp luật, trái đạo đức, thiếu văn hóa</h4>
+                            <div class="drop-target-area min-h-[140px] flex flex-col gap-2 flex-grow"></div>
+                        </div>
+                        <div class="bg-green-50 border-2 border-green-200 rounded-xl p-4 drop-zone flex flex-col" ondragover="allowDrop(event)" ondrop="drop(event, 'group-khong-vi-pham')" id="group-khong-vi-pham">
+                            <h4 class="font-black text-green-900 mb-3 text-base sm:text-lg uppercase">Hành vi không thuộc nhóm trên</h4>
+                            <div class="drop-target-area min-h-[140px] flex flex-col gap-2 flex-grow"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CÂU 2 -->
+                <div id="question-2-card" class="bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-md transition-all duration-300">
+                    <h3 class="text-lg sm:text-xl font-black text-darkBlue uppercase mb-2">CÂU 2. DẠNG NỐI – 2 ĐIỂM (Mỗi cặp đúng 0.5 điểm)</h3>
+                    <p class="text-lg sm:text-xl font-bold text-slate-900 mb-4">Nối hành vi với nhận định phù hợp bằng cách chọn nhãn A, B, C, D ở các hộp chọn bên dưới.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="space-y-4">
+                            <h4 class="font-black text-darkBlue uppercase text-sm tracking-wide">Cột bên trái (Hành vi):</h4>
+                            <div class="p-4 bg-white border-2 border-slate-300 rounded-xl shadow-sm text-base sm:text-lg font-bold text-slate-900">
+                                <span class="font-black text-accentPink mr-2">A.</span> Tải hình ảnh chưa được chủ sở hữu cho phép và sử dụng như của mình.
+                            </div>
+                            <div class="p-4 bg-white border-2 border-slate-300 rounded-xl shadow-sm text-base sm:text-lg font-bold text-slate-900">
+                                <span class="font-black text-accentPink mr-2">B.</span> Sử dụng ngôn ngữ phản cảm trên mạng xã hội.
+                            </div>
+                            <div class="p-4 bg-white border-2 border-slate-300 rounded-xl shadow-sm text-base sm:text-lg font-bold text-slate-900">
+                                <span class="font-black text-accentPink mr-2">C.</span> Chúc mừng sinh nhật bạn trên mạng xã hội.
+                            </div>
+                            <div class="p-4 bg-white border-2 border-slate-300 rounded-xl shadow-sm text-base sm:text-lg font-bold text-slate-900">
+                                <span class="font-black text-accentPink mr-2">D.</span> Đăng hình ảnh, video bôi nhọ, xúc phạm người khác.
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <h4 class="font-black text-darkBlue uppercase text-sm tracking-wide">Cột bên phải (Chọn nhãn tương ứng A, B, C, D):</h4>
+                            <div class="flex items-center justify-between p-3.5 bg-white border-2 border-slate-300 rounded-xl shadow-sm gap-3">
+                                <span class="text-base sm:text-lg font-bold text-slate-900 flex-1">1. Hành vi giao tiếp phù hợp.</span>
+                                <select id="match-1" class="px-4 py-2 border-2 border-slate-300 rounded-xl font-black text-lg focus:border-amber-500 focus:outline-none bg-sky-50 text-darkBlue w-28 text-center">
+                                    <option value="">Chọn</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between p-3.5 bg-white border-2 border-slate-300 rounded-xl shadow-sm gap-3">
+                                <span class="text-base sm:text-lg font-bold text-slate-900 flex-1">2. Có thể xâm phạm quyền của chủ sở hữu nội dung.</span>
+                                <select id="match-2" class="px-4 py-2 border-2 border-slate-300 rounded-xl font-black text-lg focus:border-amber-500 focus:outline-none bg-sky-50 text-darkBlue w-28 text-center">
+                                    <option value="">Chọn</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between p-3.5 bg-white border-2 border-slate-300 rounded-xl shadow-sm gap-3">
+                                <span class="text-base sm:text-lg font-bold text-slate-900 flex-1">3. Ứng xử thiếu văn hóa trên môi trường số.</span>
+                                <select id="match-3" class="px-4 py-2 border-2 border-slate-300 rounded-xl font-black text-lg focus:border-amber-500 focus:outline-none bg-sky-50 text-darkBlue w-28 text-center">
+                                    <option value="">Chọn</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between p-3.5 bg-white border-2 border-slate-300 rounded-xl shadow-sm gap-3">
+                                <span class="text-base sm:text-lg font-bold text-slate-900 flex-1">4. Có nội dung xúc phạm, bôi nhọ người khác.</span>
+                                <select id="match-4" class="px-4 py-2 border-2 border-slate-300 rounded-xl font-black text-lg focus:border-amber-500 focus:outline-none bg-sky-50 text-darkBlue w-28 text-center">
+                                    <option value="">Chọn</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CÂU 3 -->
+                <div id="question-3-card" class="bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-md transition-all duration-300">
+                    <h3 class="text-lg sm:text-xl font-black text-darkBlue uppercase mb-4">CÂU 3. DẠNG TRẮC NGHIỆM – 2 ĐIỂM</h3>
+                    
+                    <div class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <p class="text-base sm:text-lg font-bold text-slate-900 mb-3">
+                            <span class="text-darkBlue font-black">CÂU 3.1 – 1 ĐIỂM:</span> Hành vi nào sau đây khi hoạt động trong môi trường số không vi phạm pháp luật, trái đạo đức, thiếu văn hóa?
+                        </p>
+                        <div class="space-y-2.5">
+                            <label class="flex items-start space-x-3 p-4 bg-white border-2 border-slate-200 rounded-xl hover:bg-sky-50 cursor-pointer transition">
+                                <input type="radio" name="q3_1" value="A" class="mt-1.5 w-5 h-5 text-darkBlue shrink-0">
+                                <span class="text-base sm:text-lg font-bold text-slate-900">A. Đăng bài hoặc bình luận gây mâu thuẫn vùng miền.</span>
+                            </label>
+                            <label class="flex items-start space-x-3 p-4 bg-white border-2 border-slate-200 rounded-xl hover:bg-sky-50 cursor-pointer transition">
+                                <input type="radio" name="q3_1" value="B" class="mt-1.5 w-5 h-5 text-darkBlue shrink-0">
+                                <span class="text-base sm:text-lg font-bold text-slate-900">B. Quảng cáo bán hàng hóa, dịch vụ bị cấm.</span>
+                            </label>
+                            <label class="flex items-start space-x-3 p-4 bg-white border-2 border-slate-200 rounded-xl hover:bg-sky-50 cursor-pointer transition">
+                                <input type="radio" name="q3_1" value="C" class="mt-1.5 w-5 h-5 text-darkBlue shrink-0">
+                                <span class="text-base sm:text-lg font-bold text-slate-900">C. Sử dụng trái phép tài khoản mạng của tổ chức, cá nhân khác.</span>
+                            </label>
+                            <label class="flex items-start space-x-3 p-4 bg-white border-2 border-slate-200 rounded-xl hover:bg-sky-50 cursor-pointer transition">
+                                <input type="radio" name="q3_1" value="D" class="mt-1.5 w-5 h-5 text-darkBlue shrink-0">
+                                <span class="text-base sm:text-lg font-bold text-slate-900">D. Chia sẻ thông tin về lớp học ngôn ngữ lập trình trực tuyến.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <p class="text-base sm:text-lg font-bold text-slate-900 mb-3">
+                            <span class="text-darkBlue font-black">CÂU 3.2 – 1 ĐIỂM:</span> Khi nhận được một liên kết lạ trên mạng, em nên làm gì?
+                        </p>
+                        <div class="space-y-2.5">
+                            <label class="flex items-start space-x-3 p-4 bg-white border-2 border-slate-200 rounded-xl hover:bg-sky-50 cursor-pointer transition">
+                                <input type="radio" name="q3_2" value="A" class="mt-1.5 w-5 h-5 text-darkBlue shrink-0">
+                                <span class="text-base sm:text-lg font-bold text-slate-900">A. Truy cập ngay để nhận phần quà.</span>
+                            </label>
+                            <label class="flex items-start space-x-3 p-4 bg-white border-2 border-slate-200 rounded-xl hover:bg-sky-50 cursor-pointer transition">
+                                <input type="radio" name="q3_2" value="B" class="mt-1.5 w-5 h-5 text-darkBlue shrink-0">
+                                <span class="text-base sm:text-lg font-bold text-slate-900">B. Chia sẻ ngay cho nhiều người khác.</span>
+                            </label>
+                            <label class="flex items-start space-x-3 p-4 bg-white border-2 border-slate-200 rounded-xl hover:bg-sky-50 cursor-pointer transition">
+                                <input type="radio" name="q3_2" value="C" class="mt-1.5 w-5 h-5 text-darkBlue shrink-0">
+                                <span class="text-base sm:text-lg font-bold text-slate-900">C. Cẩn trọng trước khi truy cập hoặc chia sẻ.</span>
+                            </label>
+                            <label class="flex items-start space-x-3 p-4 bg-white border-2 border-slate-200 rounded-xl hover:bg-sky-50 cursor-pointer transition">
+                                <input type="radio" name="q3_2" value="D" class="mt-1.5 w-5 h-5 text-darkBlue shrink-0">
+                                <span class="text-base sm:text-lg font-bold text-slate-900">D. Cung cấp thông tin cá nhân theo yêu cầu của liên kết.</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CÂU 4 -->
+                <div id="question-4-card" class="bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-md transition-all duration-300">
+                    <h3 class="text-lg sm:text-xl font-black text-darkBlue uppercase mb-2">CÂU 4. DẠNG ĐÚNG / SAI – 2 ĐIỂM</h3>
+                    <p class="text-base sm:text-lg font-bold text-slate-900 mb-4">Đánh giá các phát biểu sau là Đúng hay Sai (0,5 điểm / ý).</p>
+                    
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <span class="text-base sm:text-lg font-bold text-slate-900 flex-1">
+                                1. Có thể tải một hình ảnh trên Internet và sử dụng như của mình dù chưa được chủ sở hữu cho phép.
+                            </span>
+                            <div class="flex items-center space-x-6 shrink-0">
+                                <label class="flex items-center space-x-2 font-black cursor-pointer text-base sm:text-lg">
+                                    <input type="radio" name="q4_1" value="Đúng" class="w-5 h-5 text-darkBlue">
+                                    <span>Đúng</span>
+                                </label>
+                                <label class="flex items-center space-x-2 font-black cursor-pointer text-base sm:text-lg">
+                                    <input type="radio" name="q4_1" value="Sai" class="w-5 h-5 text-darkBlue">
+                                    <span>Sai</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <span class="text-base sm:text-lg font-bold text-slate-900 flex-1">
+                                2. Sử dụng ngôn ngữ phản cảm khi giao tiếp trên mạng xã hội là hành vi phù hợp.
+                            </span>
+                            <div class="flex items-center space-x-6 shrink-0">
+                                <label class="flex items-center space-x-2 font-black cursor-pointer text-base sm:text-lg">
+                                    <input type="radio" name="q4_2" value="Đúng" class="w-5 h-5 text-darkBlue">
+                                    <span>Đúng</span>
+                                </label>
+                                <label class="flex items-center space-x-2 font-black cursor-pointer text-base sm:text-lg">
+                                    <input type="radio" name="q4_2" value="Sai" class="w-5 h-5 text-darkBlue">
+                                    <span>Sai</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <span class="text-base sm:text-lg font-bold text-slate-900 flex-1">
+                                3. Chia sẻ thông tin về một lớp học ngôn ngữ lập trình trực tuyến là hành vi không vi phạm pháp luật, trái đạo đức, thiếu văn hóa.
+                            </span>
+                            <div class="flex items-center space-x-6 shrink-0">
+                                <label class="flex items-center space-x-2 font-black cursor-pointer text-base sm:text-lg">
+                                    <input type="radio" name="q4_3" value="Đúng" class="w-5 h-5 text-darkBlue">
+                                    <span>Đúng</span>
+                                </label>
+                                <label class="flex items-center space-x-2 font-black cursor-pointer text-base sm:text-lg">
+                                    <input type="radio" name="q4_3" value="Sai" class="w-5 h-5 text-darkBlue">
+                                    <span>Sai</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <span class="text-base sm:text-lg font-bold text-slate-900 flex-1">
+                                4. Khi nhận được một liên kết lạ trên mạng, cần cẩn trọng trước khi truy cập hoặc chia sẻ.
+                            </span>
+                            <div class="flex items-center space-x-6 shrink-0">
+                                <label class="flex items-center space-x-2 font-black cursor-pointer text-base sm:text-lg">
+                                    <input type="radio" name="q4_4" value="Đúng" class="w-5 h-5 text-darkBlue">
+                                    <span>Đúng</span>
+                                </label>
+                                <label class="flex items-center space-x-2 font-black cursor-pointer text-base sm:text-lg">
+                                    <input type="radio" name="q4_4" value="Sai" class="w-5 h-5 text-darkBlue">
+                                    <span>Sai</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CÂU 5 -->
+                <div id="question-5-card" class="bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-md transition-all duration-300">
+                    <h3 class="text-lg sm:text-xl font-black text-darkBlue uppercase mb-3">CÂU 5. DẠNG TÌNH HUỐNG – 2 ĐIỂM</h3>
+                    
+                    <div class="bg-amber-50 border-2 border-amber-300 p-4 rounded-xl mb-4">
+                        <p class="font-black text-amber-900 mb-1 uppercase text-base">TÌNH HUỐNG:</p>
+                        <p class="text-base sm:text-lg font-bold text-slate-900">
+                            Minh nhận được một liên kết lạ từ một người bạn mới quen trên mạng. Người này yêu cầu Minh chia sẻ liên kết cho 5 người và truy cập liên kết để nhận một chiếc ba lô làm phần quà.
+                        </p>
+                    </div>
+
+                    <div class="bg-sky-50 border-2 border-sky-200 p-4 rounded-xl mb-4">
+                        <p class="font-black text-sky-900 mb-1 uppercase text-base">CÂU HỎI:</p>
+                        <p class="text-base sm:text-lg font-bold text-slate-900 mb-2">Theo em, Minh có nên làm theo yêu cầu đó không? Vì sao?</p>
+                        <p class="font-black text-darkBlue text-sm uppercase mb-1">GỢI Ý:</p>
+                        <ul class="list-disc list-inside text-slate-800 text-sm sm:text-base font-bold space-y-1">
+                            <li>Liên kết có thể chứa nội dung xấu hoặc có nguy cơ lừa đảo.</li>
+                            <li>Không nên chia sẻ một liên kết mà mình chưa hiểu rõ.</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <label class="block font-black text-slate-800 mb-2 text-base uppercase">Câu trả lời của em:</label>
+                        <textarea id="answer-q5" rows="4" placeholder="Viết câu trả lời chi tiết của em vào đây..." 
+                            class="w-full p-4 rounded-xl border-2 border-slate-300 focus:border-amber-500 focus:outline-none text-base sm:text-lg font-bold text-slate-900 bg-white"></textarea>
+                    </div>
+                </div>
+
+                <!-- SUBMIT BUTTON SECTION WITH RETURN TO RESULT BUTTON -->
+                <div class="flex flex-wrap gap-4 justify-center items-center pt-6 pb-12">
+                    <button type="button" onclick="submitQuiz()" class="px-12 py-5 bg-gradient-to-r from-accentPink to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white font-black text-xl rounded-2xl shadow-xl transition transform hover:scale-105 uppercase tracking-wider">
+                        CHẤM ĐIỂM
+                    </button>
+                    <button type="button" onclick="handleReturnToResult()" class="px-8 py-5 bg-amber-500 hover:bg-amber-600 text-white font-black text-xl rounded-2xl shadow-xl transition transform hover:scale-105 uppercase tracking-wider">
+                        QUAY VỀ KẾT QUẢ
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- RESULT MODAL -->
+        <div id="result-modal" class="hidden fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-4 border-amber-400 text-center space-y-6">
+                <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner border-2 border-amber-300">
+                    🏆
+                </div>
+                <div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-darkBlue uppercase mb-1">KẾT QUẢ BÀI LÀM</h3>
+                    <p id="result-feedback" class="text-xl sm:text-2xl font-black text-accentPink mt-2"></p>
+                </div>
+
+                <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 text-left space-y-2 text-base sm:text-lg font-extrabold text-slate-800">
+                    <p>Họ và tên: <span id="res-name" class="text-darkBlue font-black"></span></p>
+                    <p>Lớp: <span id="res-class" class="text-darkBlue font-black"></span></p>
+                    <p>Tổng điểm: <span id="res-score" class="text-2xl text-emerald-600 font-black"></span> / 10 điểm</p>
+                    <p>Số câu đúng hoàn toàn: <span id="res-correct-count" class="text-darkBlue font-black"></span> / 5 câu</p>
+                </div>
+
+                <div id="sheet-submit-section" class="space-y-1">
+                    <p id="sync-status" class="text-xs sm:text-sm text-slate-600 font-bold">Chưa gửi kết quả lên hệ thống.</p>
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-600 font-bold">Hệ thống đã khóa bài vĩnh viễn. Các câu hỏi đã được đánh dấu viền màu (Xanh = Đúng hoàn toàn, ĐỎ = Sai/Thiếu ý).</p>
+
+                <!-- BUTTONS ROW (Review, Google Sheets, but NO Return button here) -->
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <button type="button" onclick="closeModal()" class="px-5 py-3 bg-darkBlue text-white font-extrabold text-sm sm:text-base rounded-xl shadow-lg hover:bg-blue-900 transition uppercase tracking-wide">
+                        XEM LẠI BÀI LÀM
+                    </button>
+                    <button type="button" onclick="sendDataToGoogleSheets()" id="btn-send-sheet" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm sm:text-base rounded-xl shadow-lg transition uppercase tracking-wide">
+                        GỬI ĐIỂM LÊN SHEETS
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // =========================================================================
+        // DÁN ĐƯỜNG DẪN WEB APP URL CỦA GOOGLE SHEETS VÀO DƯỚI ĐÂY:
+        // =========================================================================
+        const SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzw2J4fPl5XmHVcL8DycwK-IJ8Usyb-95Jvmv3dRAJu3dBdS_5qOygfnYunu61P1kVk/exec";
+
+        let studentName = "";
+        let studentClass = "";
+        let timerInterval = null;
+        let timeLeft = 12 * 60; // 12 minutes in seconds
+        let isSubmitted = false;
+        let finalScoreData = null;
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            if (isSubmitted) return;
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev, targetGroupId) {
+            ev.preventDefault();
+            if (isSubmitted) return;
+            let data = ev.dataTransfer.getData("text");
+            let draggedElement = document.getElementById(data);
+            let targetGroup = document.getElementById(targetGroupId).querySelector('.drop-target-area');
+            if (draggedElement && targetGroup) {
+                targetGroup.appendChild(draggedElement);
+            }
+        }
+
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            const classInput = document.getElementById('student-class').value.trim();
+
+            if (!nameInput || !classInput) {
+                const formCard = document.getElementById('student-form');
+                let existingErr = document.getElementById('form-error-msg');
+                if (!existingErr) {
+                    let err = document.createElement('p');
+                    err.id = 'form-error-msg';
+                    err.className = 'text-red-600 font-extrabold text-sm mt-2 text-center';
+                    err.innerText = 'Vui lòng nhập đầy đủ HỌ VÀ TÊN và LỚP trước khi bắt đầu!';
+                    formCard.appendChild(err);
+                }
+                return;
+            }
+
+            studentName = nameInput;
+            studentClass = classInput;
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = studentClass;
+
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (!isSubmitted) {
+                        submitQuiz();
+                    }
+                    return;
+                }
+                timeLeft--;
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                let displayString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timer-display').innerText = displayString;
+
+                if (timeLeft <= 120) {
+                    document.getElementById('timer-display').classList.add('text-red-400', 'animate-pulse');
+                }
+            }, 1000);
+        }
+
+        function submitQuiz() {
+            if (isSubmitted) return;
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            const allInputs = document.querySelectorAll('input, select, textarea');
+            allInputs.forEach(input => input.disabled = true);
+            const draggables = document.querySelectorAll('.draggable-item');
+            draggables.forEach(item => item.removeAttribute('draggable'));
+
+            let totalScore = 0;
+            let correctQuestionsCount = 0;
+
+            // --- CÂU 1 (2 điểm, mỗi ý đúng 0.5 điểm) ---
+            const viPhamGroup = document.getElementById('group-vi-pham').querySelector('.drop-target-area');
+            const khongViPhamGroup = document.getElementById('group-khong-vi-pham').querySelector('.drop-target-area');
+            
+            let q1ItemsViPham = Array.from(viPhamGroup.children).map(el => el.id);
+            let q1ItemsKhongViPham = Array.from(khongViPhamGroup.children).map(el => el.id);
+
+            let q1Score = 0;
+            if (q1ItemsViPham.includes('card-1')) q1Score += 0.5;
+            if (q1ItemsViPham.includes('card-2')) q1Score += 0.5;
+            if (q1ItemsViPham.includes('card-4')) q1Score += 0.5;
+            if (q1ItemsKhongViPham.includes('card-3')) q1Score += 0.5;
+
+            totalScore += q1Score;
+            let q1CorrectAll = (q1Score === 2);
+            if (q1CorrectAll) correctQuestionsCount++;
+            setQuestionBorder('question-1-card', q1CorrectAll);
+
+            // --- CÂU 2 (2 điểm) ---
+            let q2Score = 0;
+            let val1 = document.getElementById('match-1').value;
+            let val2 = document.getElementById('match-2').value;
+            let val3 = document.getElementById('match-3').value;
+            let val4 = document.getElementById('match-4').value;
+
+            if (val1 === 'C') q2Score += 0.5;
+            if (val2 === 'A') q2Score += 0.5;
+            if (val3 === 'B') q2Score += 0.5;
+            if (val4 === 'D') q2Score += 0.5;
+
+            totalScore += q2Score;
+            let q2CorrectAll = (q2Score === 2);
+            if (q2CorrectAll) correctQuestionsCount++;
+            setQuestionBorder('question-2-card', q2CorrectAll);
+
+            // --- CÂU 3 (2 điểm) ---
+            let q3Score = 0;
+            let q3_1Selected = document.querySelector('input[name="q3_1"]:checked');
+            let q3_2Selected = document.querySelector('input[name="q3_2"]:checked');
+
+            let q3_1Correct = (q3_1Selected && q3_1Selected.value === 'D');
+            let q3_2Correct = (q3_2Selected && q3_2Selected.value === 'C');
+
+            if (q3_1Correct) q3Score += 1;
+            if (q3_2Correct) q3Score += 1;
+
+            totalScore += q3Score;
+            let q3CorrectAll = (q3Score === 2);
+            if (q3CorrectAll) correctQuestionsCount++;
+            setQuestionBorder('question-3-card', q3CorrectAll);
+
+            // --- CÂU 4 (2 điểm) ---
+            let q4Score = 0;
+            let q4_1 = document.querySelector('input[name="q4_1"]:checked')?.value;
+            let q4_2 = document.querySelector('input[name="q4_2"]:checked')?.value;
+            let q4_3 = document.querySelector('input[name="q4_3"]:checked')?.value;
+            let q4_4 = document.querySelector('input[name="q4_4"]:checked')?.value;
+
+            if (q4_1 === 'Sai') q4Score += 0.5;
+            if (q4_2 === 'Sai') q4Score += 0.5;
+            if (q4_3 === 'Đúng') q4Score += 0.5;
+            if (q4_4 === 'Đúng') q4Score += 0.5;
+
+            totalScore += q4Score;
+            let q4CorrectAll = (q4Score === 2);
+            if (q4CorrectAll) correctQuestionsCount++;
+            setQuestionBorder('question-4-card', q4CorrectAll);
+
+            // --- CÂU 5 (2 điểm) ---
+            let q5Text = document.getElementById('answer-q5').value.toLowerCase();
+            let q5Score = 0;
+
+            if (q5Text.includes('không nên') || q5Text.includes('không nên làm theo') || q5Text.includes('từ chối')) {
+                q5Score += 0.5;
+            }
+            if (q5Text.includes('lừa đảo') || q5Text.includes('nội dung xấu') || q5Text.includes('độc hại') || q5Text.includes('mã độc') || q5Text.includes('virus')) {
+                q5Score += 0.75;
+            }
+            if (q5Text.includes('thận trọng') || q5Text.includes('cẩn thận') || q5Text.includes('lan truyền') || q5Text.includes('nguồn gốc') || q5Text.includes('rủi ro')) {
+                q5Score += 0.75;
+            }
+
+            totalScore += q5Score;
+            let q5CorrectAll = (q5Score === 2);
+            if (q5CorrectAll) correctQuestionsCount++;
+            setQuestionBorder('question-5-card', q5CorrectAll);
+
+            totalScore = Math.round(totalScore * 100) / 100;
+
+            finalScoreData = {
+                name: studentName,
+                class: studentClass,
+                score: totalScore,
+                correctCount: correctQuestionsCount,
+                timestamp: new Date().toLocaleString()
+            };
+
+            document.getElementById('res-name').innerText = studentName;
+            document.getElementById('res-class').innerText = studentClass;
+            document.getElementById('res-score').innerText = totalScore;
+            document.getElementById('res-correct-count').innerText = correctQuestionsCount;
+
+            let percentage = (totalScore / 10) * 100;
+            let feedbackText = "";
+            if (percentage >= 90) {
+                feedbackText = "Xuất sắc!";
+            } else if (percentage >= 70) {
+                feedbackText = "Tốt!";
+            } else if (percentage >= 50) {
+                feedbackText = "Cần luyện thêm!";
+            } else {
+                feedbackText = "Xem lại bài nhé!";
+            }
+            document.getElementById('result-feedback').innerText = feedbackText;
+
+            document.getElementById('result-modal').classList.remove('hidden');
+
+            if (!SHEET_WEB_APP_URL || SHEET_WEB_APP_URL.includes("script.google.com/macros/s/...")) {
+                document.getElementById('btn-send-sheet').style.display = 'none';
+                document.getElementById('sync-status').innerText = "Chưa cấu hình URL Google Sheets.";
+            }
+        }
+
+        function sendDataToGoogleSheets() {
+            if (!SHEET_WEB_APP_URL || SHEET_WEB_APP_URL.includes("script.google.com/macros/s/...")) {
+                return;
+            }
+
+            const statusEl = document.getElementById('sync-status');
+            const btnEl = document.getElementById('btn-send-sheet');
+            
+            statusEl.innerText = "Đang gửi kết quả lên Google Sheets...";
+            statusEl.className = "text-sm text-amber-600 font-bold";
+            btnEl.disabled = true;
+            btnEl.classList.add('opacity-50', 'cursor-not-allowed');
+
+            fetch(SHEET_WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(finalScoreData)
+            })
+            .then(() => {
+                statusEl.innerText = "Trạng thái: Đã gửi kết quả thành công vào Google Sheets! ✅";
+                statusEl.className = "text-sm text-emerald-600 font-bold";
+            })
+            .catch(error => {
+                console.error("Error saving to sheet:", error);
+                statusEl.innerText = "Trạng thái: Lỗi kết nối Google Sheets.";
+                statusEl.className = "text-sm text-red-600 font-bold";
+                btnEl.disabled = false;
+                btnEl.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
+        }
+
+        function setQuestionBorder(cardId, isCorrect) {
+            const card = document.getElementById(cardId);
+            card.classList.remove('border-slate-200');
+            if (isCorrect) {
+                card.classList.add('border-emerald-500', 'bg-emerald-50/20', 'border-4');
+            } else {
+                card.classList.add('border-red-500', 'bg-red-50/20', 'border-4');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Action for "QUAY VỀ KẾT QUẢ" button on grading screen
+        function handleReturnToResult() {
+            if (isSubmitted) {
+                document.getElementById('result-modal').classList.remove('hidden');
+            } else {
+                submitQuiz();
+            }
+        }
+    </script>
+</body>
+</html>
